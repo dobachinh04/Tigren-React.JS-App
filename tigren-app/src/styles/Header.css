@@ -1,0 +1,69 @@
+.header {
+    background-color: #1c1c1c;
+    padding: 10px 20px;
+}
+
+.nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.menu {
+    display: flex;
+    list-style: none;
+}
+
+.menu > li {
+    position: relative;
+    margin: 0 15px;
+    color: #ffffff; /* Màu chữ trắng */
+}
+
+.menu > li ul {
+    display: none; /* Ẩn menu con mặc định */
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    z-index: 1000;
+}
+
+.menu > li:hover ul {
+    display: block; /* Hiện menu con khi hover */
+}
+
+.menu > li ul li {
+    padding: 10px;
+}
+
+.menu > li ul li a {
+    text-decoration: none; /* Bỏ gạch chân */
+    color: #000000; /* Màu chữ đen cho các liên kết trong menu con */
+    font-size: 16px; /* Kích thước chữ trong menu con */
+}
+
+.menu > li ul li:hover {
+    background-color: #f1f1f1; /* Hiệu ứng hover */
+}
+
+.menu > li a {
+    text-decoration: none; /* Bỏ gạch chân */
+    color: #ffffff; /* Màu chữ trắng cho liên kết chính */
+    font-size: 18px; /* Tăng kích thước chữ (có thể điều chỉnh theo ý thích) */
+    font-weight: normal; /* Không in đậm */
+}
+
+.icons {
+    display: flex;
+    align-items: center;
+}
+
+.icon {
+    text-decoration: none; /* Bỏ gạch chân */
+    color: #ffffff; /* Màu chữ trắng cho biểu tượng */
+    font-size: 18px; /* Kích thước chữ cho biểu tượng */
+    margin-left: 15px; /* Khoảng cách giữa các biểu tượng */
+}
