@@ -2,36 +2,12 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
-import HelloWorld from './App';
-import Login from './components/Login';
-import TestimonialList from './components/TestimonialList';
-import ProductList from './components/ProductList';
-import {
-    UserGreeting,
-    Counter,
-    ToggleButton,
-    NameForm,
-    NameList,
-    SearchableNameList,
-    SimpleClock,
-    TodoList
-} from './App';
+import App from './App';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
     <React.StrictMode>
-        {/*<HelloWorld />*/}
-        {/*<UserGreeting name="Đỗ Bá Chính" />*/}
-        {/*<Counter />*/}
-        {/*<ToggleButton />*/}
-        {/*<NameForm />*/}
-        {/*<NameList />*/}
-        {/*<SearchableNameList />*/}
-        {/*<SimpleClock />*/}
-        {/*<TodoList />*/}
-        <Login />
-        <TestimonialList />
-        <ProductList />
+        <App />
     </React.StrictMode>
 );
 
