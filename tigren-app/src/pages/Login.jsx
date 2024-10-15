@@ -11,9 +11,9 @@ const Login = () => {
 
     // Kiểm tra xem người dùng đã đăng nhập hay chưa
     useEffect(() => {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('customerToken');
         if (token) {
-            navigate('/user-detail'); // Chuyển hướng nếu đã đăng nhập
+            navigate('/user-detail'); // Chuyển hướng đến giỏ hàng nếu đã đăng nhập
         }
     }, [navigate]);
 
@@ -22,52 +22,64 @@ const Login = () => {
         setError(null);
 
         try {
-            const response = await fetch('http://magento2.com/rest/V1/integration/customer/token', {
+            // Gửi yêu cầu đăng nhập với GraphQL
+            const response = await fetch('http://magento2.com/graphql', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    username: email,
-                    password: password
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error('Login failed');
-            }
-
-            const token = await response.text();
-            const sanitizedToken = token.replace(/"/g, '');
-            localStorage.setItem('token', sanitizedToken);
-
-            const userResponse = await fetch('http://magento2.com/graphql', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${sanitizedToken}`
-                },
-                body: JSON.stringify({
-                    query: `{
-                        customer {
-                            firstname
-                            lastname
-                            email
-                        }
+                    query: `
+                    mutation {
+                      generateCustomerToken(
+                        email: "${email}", 
+                        password: "${password}"
+                      ) {
+                        token
+                      }
                     }`
                 })
             });
 
-            const userData = await userResponse.json();
+            const result = await response.json();
 
-            if (userData.data.customer) {
-                setUserData(userData.data.customer);
-                localStorage.setItem('userData', JSON.stringify(userData.data.customer));
-                navigate('/user-detail');
-            } else {
-                throw new Error('User data not found');
+            if (result.errors) {
+                throw new Error('Login failed: ' + result.errors[0].message);
             }
 
+            const token = result.data.generateCustomerToken.token;
+            localStorage.setItem('customerToken', token); // Lưu token vào localStorage
+
+            // Lấy thông tin người dùng
+            const userResponse = await fetch('http://magento2.com/graphql', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    query: `
+                    query {
+                      customer {
+                        firstname
+                        lastname
+                        email
+                      }
+                    }`
+                })
+            });
+
+            const userDataResult = await userResponse.json();
+
+            if (userDataResult.errors) {
+                throw new Error('Failed to fetch user data.');
+            }
+
+            setUserData(userDataResult.data.customer);
+            localStorage.setItem('userData', JSON.stringify(userDataResult.data.customer));
+
+            // Điều hướng đến trang giỏ hàng sau khi đăng nhập thành công
+            navigate('/user-detail');
         } catch (err) {
             setError(err.message);
         }
@@ -77,7 +89,7 @@ const Login = () => {
         <div className="login-container">
             <div className="login-box">
                 <h2>Login</h2>
-                {error && <p>{error}</p>}
+                {error && <p style={{ color: 'red' }}>{error}</p>}
                 <form onSubmit={handleSubmit}>
                     <div>
                         <label>Email:</label>

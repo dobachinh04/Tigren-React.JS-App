@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../styles/Header.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUser, faCartShopping, faRightToBracket, faUserGear } from '@fortawesome/free-solid-svg-icons';
 
 const Header = () => {
     const navigate = useNavigate();
@@ -8,12 +10,12 @@ const Header = () => {
     const [error, setError] = useState(null);
 
     const handleLogout = () => {
-        localStorage.removeItem('token'); // Xóa token khi logout
+        localStorage.removeItem('customerToken'); // Xóa token khi logout
         localStorage.removeItem('userData'); // Xóa dữ liệu người dùng
         navigate('/login'); // Chuyển hướng về trang login
     };
 
-    const token = localStorage.getItem('token'); // Kiểm tra token trong localStorage
+    const token = localStorage.getItem('customerToken'); // Kiểm tra token trong localStorage
 
     useEffect(() => {
         const fetchBlogCategories = async () => {
@@ -22,7 +24,6 @@ const Header = () => {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
-                        // 'Authorization': 'Bearer (token)' // Nếu cần thiết
                     },
                     body: JSON.stringify({
                         query: `{
@@ -42,7 +43,6 @@ const Header = () => {
                 }
 
                 const result = await response.json();
-                console.log(result);
                 setBlogCategories(result.data.getBlogCategoryList.items);
             } catch (err) {
                 setError(err.message);
@@ -55,9 +55,12 @@ const Header = () => {
     return (
         <header className="header">
             <nav className="nav">
-                <Link to="/" className="logo"><img
-                    src="https://cdn.brandfetch.io/idSfrRTEh8/w/170/h/39/theme/light/logo.png?k=bfHSJFAPEG"
-                    alt="" /></Link>
+                <Link to="/" className="logo">
+                    <img
+                        src="https://cdn.brandfetch.io/idSfrRTEh8/w/170/h/39/theme/light/logo.png?k=bfHSJFAPEG"
+                        alt="Logo"
+                    />
+                </Link>
                 <ul className="menu">
                     <li><Link to="/">Home</Link></li>
                     <li><Link to="/products">Products</Link></li>
@@ -70,9 +73,7 @@ const Header = () => {
                             ) : (
                                 blogCategories.map((category) => (
                                     <li key={category.entity_id}>
-                                        <Link to={`/blogs/${category.entity_id}`}>
-                                            {category.name}
-                                        </Link>
+                                        <Link to={`/blogs/${category.entity_id}`}>{category.name}</Link>
                                     </li>
                                 ))
                             )}
@@ -81,12 +82,24 @@ const Header = () => {
                     <li><Link to="/about">About</Link></li>
                 </ul>
                 <div className="icons">
-                    {!token ? ( // Nếu không có token, hiển thị nút Login
-                        <Link to="/login" className="icon">Login</Link>
+                    {!token ? (
+                        <Link to="/login" className="icon">
+                            <FontAwesomeIcon icon={faUser} />
+                        </Link>
                     ) : (
-                        <button onClick={handleLogout} className="icon">Logout</button> // Nếu có token, hiển thị nút Logout
+                        <>
+                            <button onClick={handleLogout} className="icon logout-button">
+                                <FontAwesomeIcon icon={faRightToBracket} />
+                            </button>
+                            <Link to="/user-detail" className="icon">
+                                <FontAwesomeIcon icon={faUserGear} />
+                            </Link>
+
+                        </>
                     )}
-                    <Link to="/cart" className="icon">🛒</Link>
+                    <Link to="/cart" className="icon">
+                        <FontAwesomeIcon icon={faCartShopping} />
+                    </Link>
                 </div>
             </nav>
         </header>

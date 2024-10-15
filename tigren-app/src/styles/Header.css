@@ -62,8 +62,19 @@
 }
 
 .icon {
-    text-decoration: none; /* Bỏ gạch chân */
-    color: #ffffff; /* Màu chữ trắng cho biểu tượng */
-    font-size: 18px; /* Kích thước chữ cho biểu tượng */
-    margin-left: 15px; /* Khoảng cách giữa các biểu tượng */
+    text-decoration: none;
+    color: #ffffff;
+    font-size: 20px;
+    margin-left: 15px;
+}
+
+.icon:hover {
+    color: #6fb3ff;
+}
+
+.logout-button {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
 }

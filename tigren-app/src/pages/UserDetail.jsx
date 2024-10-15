@@ -1,18 +1,17 @@
-// UserDetail.jsx
 import React from 'react';
+import '../styles/UserDetail.css'; // Đảm bảo bạn đã tạo file này
 
 const UserDetail = () => {
-    // Bạn có thể lấy dữ liệu người dùng từ localStorage hoặc context API nếu cần
     const userData = JSON.parse(localStorage.getItem('userData'));
 
     return (
-        <div>
+        <div className="user-detail-container">
             <h2>User Detail</h2>
             {userData ? (
-                <div>
-                    <p>First Name: {userData.firstname}</p>
-                    <p>Last Name: {userData.lastname}</p>
-                    <p>Email: {userData.email}</p>
+                <div className="user-detail">
+                    <p><strong>First Name:</strong> {userData.firstname}</p>
+                    <p><strong>Last Name:</strong> {userData.lastname}</p>
+                    <p><strong>Email:</strong> {userData.email}</p>
                 </div>
             ) : (
                 <p>No user data available.</p>

@@ -21,7 +21,7 @@
 .cart-item {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start; /* Đổi từ space-between thành flex-start để căn trái */
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 5px;
@@ -36,10 +36,11 @@
 
 .cart-item h3 {
     margin: 0;
+    flex-grow: 1; /* Để tiêu đề có thể mở rộng chiếm không gian còn lại */
 }
 
 .cart-item p {
-    margin: 0;
+    margin: 0 20px 0 0;
 }
 
 .cart-item button {
