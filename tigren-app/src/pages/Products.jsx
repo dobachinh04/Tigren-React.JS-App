@@ -107,39 +107,64 @@ const Products = () => {
                 localStorage.setItem('cartId', cartId);
             }
 
+            // Kiểm tra xem giỏ hàng có hoạt động hay không
             const response = await axios.post(
                 'http://magento2.com/graphql',
                 {
                     query: `
-                mutation AddToCart($cartId: String!, $sku: String!, $quantity: Float!) {
-                    addSimpleProductsToCart(
-                        input: {
-                            cart_id: $cartId,
-                            cart_items: [
-                                {
-                                    data: {
-                                        sku: $sku,
-                                        quantity: $quantity
-                                    }
-                                }
-                            ]
+                    query {
+                        cart(cart_id: "${cartId}") {
+                            id
                         }
-                    ) {
-                        cart {
-                            items {
-                                id
-                                product {
-                                    name
+                    }
+                `
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+
+            // Nếu giỏ hàng không hợp lệ, tạo một giỏ hàng mới
+            if (response.data.errors || !response.data.data.cart) {
+                cartId = await createCart(token);
+                localStorage.setItem('cartId', cartId);
+            }
+
+            const addToCartResponse = await axios.post(
+                'http://magento2.com/graphql',
+                {
+                    query: `
+                    mutation AddToCart($cartId: String!, $sku: String!, $quantity: Float!) {
+                        addSimpleProductsToCart(
+                            input: {
+                                cart_id: $cartId,
+                                cart_items: [
+                                    {
+                                        data: {
+                                            sku: $sku,
+                                            quantity: $quantity
+                                        }
+                                    }
+                                ]
+                            }
+                        ) {
+                            cart {
+                                items {
+                                    id
+                                    product {
+                                        name
+                                    }
+                                    quantity
                                 }
-                                quantity
                             }
                         }
                     }
-                }
                 `,
                     variables: {
                         cartId,
-                        sku: product.sku,  // Hoặc sử dụng product.sku nếu có
+                        sku: product.sku,
                         quantity: 1
                     }
                 },
@@ -150,23 +175,13 @@ const Products = () => {
                 }
             );
 
-            if (response.data.errors) {
-                const errorMessage = response.data.errors[0].message;
-
-                // Nếu lỗi do cart hết hạn hoặc không hợp lệ, tạo lại giỏ hàng mới
-                if (errorMessage.includes('cannot perform operations on cart')) {
-                    cartId = await createCart(token);
-                    localStorage.setItem('cartId', cartId);
-
-                    // Thử lại sau khi tạo giỏ hàng mới
-                    await handleAddToCart(product);
-                    return;
-                }
+            if (addToCartResponse.data.errors) {
+                const errorMessage = addToCartResponse.data.errors[0].message;
                 throw new Error(errorMessage);
             }
 
             alert(`${product.name} has been added to your cart!`);
-            console.log('Cart response:', response.data.data);
+            console.log('Cart response:', addToCartResponse.data.data);
         } catch (err) {
             console.error('Add to cart error:', err);
             setError('Failed to add product to cart.');

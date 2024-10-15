@@ -78,3 +78,38 @@
     padding: 0;
     cursor: pointer;
 }
+
+.cart-item-count {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.dropdown-menu {
+    position: absolute; /* Đặt vị trí tuyệt đối */
+    background-color: white; /* Màu nền trắng cho menu */
+    border: 1px solid #ccc; /* Đường viền cho menu */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Đổ bóng cho menu */
+    z-index: 1000; /* Đảm bảo menu nằm trên các thành phần khác */
+    margin-top: 120px; /* Khoảng cách từ biểu tượng người dùng */
+    padding: 10px; /* Khoảng cách bên trong menu */
+    border-radius: 4px; /* Bo góc cho menu */
+}
+
+.dropdown-menu a {
+    display: block; /* Hiển thị các mục menu thành block */
+    padding: 8px 12px; /* Padding cho các mục menu */
+    text-decoration: none; /* Bỏ gạch chân cho các liên kết */
+    color: #333; /* Màu chữ */
+}
+
+.dropdown-menu a:hover {
+    background-color: #f0f0f0; /* Màu nền khi hover */
+}
+
