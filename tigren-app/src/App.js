@@ -10,6 +10,7 @@ import Products from './pages/Products';
 import Login from './pages/Login';
 import UserDetail from './pages/UserDetail';
 import Cart from './pages/Cart';
+import ProductDetail from './pages/ProductDetail';
 
 function App() {
     return (
@@ -24,6 +25,7 @@ function App() {
                     <Route path="/login" element={<Login />} />
                     <Route path="/user-detail" element={<UserDetail />} />
                     <Route path="/cart" element={<Cart />} />
+                    <Route path="/product/:sku" element={<ProductDetail />} />
                 </Routes>
             </Layout>
         </Router>

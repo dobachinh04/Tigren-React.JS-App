@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import '../styles/ProductList.css';
 
 const Products = () => {
@@ -7,6 +8,7 @@ const Products = () => {
     const [error, setError] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 5;
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -59,6 +61,9 @@ const Products = () => {
         fetchProducts();
     }, [currentPage]);
 
+    const handleViewDetail = (sku) => {
+        navigate(`/product/${sku}`);
+    };
     const handleNextPage = () => setCurrentPage((prev) => prev + 1);
     const handlePreviousPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
 
@@ -182,6 +187,8 @@ const Products = () => {
                                 src={product.small_image?.url || 'https://via.placeholder.com/150'}
                                 alt={product.name}
                                 className="product-image"
+                                onClick={() => handleViewDetail(product.sku)}
+                                style={{ cursor: 'pointer' }}
                             />
                             <h3>{product.name}</h3>
                             <p>
