@@ -17,6 +17,7 @@ const Products = () => {
                         products(filter: $filter, pageSize: $pageSize, currentPage: $currentPage) {
                             items {
                                 id
+                                sku
                                 name
                                 price_range {
                                     minimum_price {
@@ -61,19 +62,110 @@ const Products = () => {
     const handleNextPage = () => setCurrentPage((prev) => prev + 1);
     const handlePreviousPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
 
-    const handleAddToCart = (product) => {
-        const savedCart = JSON.parse(localStorage.getItem('cart')) || [];
-        const newCart = [
-            ...savedCart, {
-                id: product.id,
-                name: product.name,
-                price: product.price_range.minimum_price.regular_price.value,
-                currency: product.price_range.minimum_price.regular_price.currency,
-                image: product.small_image.url
+    const createCart = async (token) => {
+        try {
+            const response = await axios.post(
+                'http://magento2.com/graphql',
+                {
+                    query: `
+                    mutation {
+                        createEmptyCart
+                    }
+                    `
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+            return response.data.data.createEmptyCart;
+        } catch (error) {
+            console.error('Failed to create cart:', error);
+            setError('Unable to create cart.');
+            throw error;
+        }
+    };
+
+    const handleAddToCart = async (product) => {
+        const token = localStorage.getItem('customerToken');
+        if (!token) {
+            setError('You must be logged in to add products to the cart.');
+            return;
+        }
+
+        let cartId = localStorage.getItem('cartId');
+
+        try {
+            if (!cartId) {
+                cartId = await createCart(token);
+                localStorage.setItem('cartId', cartId);
             }
-        ];
-        localStorage.setItem('cart', JSON.stringify(newCart));
-        alert('Product added to cart!');
+
+            const response = await axios.post(
+                'http://magento2.com/graphql',
+                {
+                    query: `
+                mutation AddToCart($cartId: String!, $sku: String!, $quantity: Float!) {
+                    addSimpleProductsToCart(
+                        input: {
+                            cart_id: $cartId,
+                            cart_items: [
+                                {
+                                    data: {
+                                        sku: $sku,
+                                        quantity: $quantity
+                                    }
+                                }
+                            ]
+                        }
+                    ) {
+                        cart {
+                            items {
+                                id
+                                product {
+                                    name
+                                }
+                                quantity
+                            }
+                        }
+                    }
+                }
+                `,
+                    variables: {
+                        cartId,
+                        sku: product.sku,  // Hoặc sử dụng product.sku nếu có
+                        quantity: 1
+                    }
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+
+            if (response.data.errors) {
+                const errorMessage = response.data.errors[0].message;
+
+                // Nếu lỗi do cart hết hạn hoặc không hợp lệ, tạo lại giỏ hàng mới
+                if (errorMessage.includes('cannot perform operations on cart')) {
+                    cartId = await createCart(token);
+                    localStorage.setItem('cartId', cartId);
+
+                    // Thử lại sau khi tạo giỏ hàng mới
+                    await handleAddToCart(product);
+                    return;
+                }
+                throw new Error(errorMessage);
+            }
+
+            alert(`${product.name} has been added to your cart!`);
+            console.log('Cart response:', response.data.data);
+        } catch (err) {
+            console.error('Add to cart error:', err);
+            setError('Failed to add product to cart.');
+        }
     };
 
     return (
@@ -87,7 +179,7 @@ const Products = () => {
                     {products.map((product) => (
                         <div key={product.id} className="product-card">
                             <img
-                                src={product.small_image.url}
+                                src={product.small_image?.url || 'https://via.placeholder.com/150'}
                                 alt={product.name}
                                 className="product-image"
                             />

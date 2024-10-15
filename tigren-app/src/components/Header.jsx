@@ -65,7 +65,7 @@ const Header = () => {
                     <li><Link to="/">Home</Link></li>
                     <li><Link to="/products">Products</Link></li>
                     <li>
-                        Blog Categories
+                        Blog
                         <ul>
                             {error && <li style={{ color: 'red' }}>{error}</li>}
                             {blogCategories.length === 0 ? (

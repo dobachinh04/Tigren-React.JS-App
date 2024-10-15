@@ -4,6 +4,7 @@ import '../styles/Cart.css';
 
 const Cart = () => {
     const [cartItems, setCartItems] = useState([]);
+    const [cartId, setCartId] = useState(null); // Thêm state để lưu cartId
     const [error, setError] = useState(null);
 
     useEffect(() => {
@@ -55,9 +56,11 @@ const Cart = () => {
                     throw new Error(response.data.errors[0].message);
                 }
 
+                // Lưu cartId và các sản phẩm vào state
+                setCartId(response.data.data.customerCart.id);
                 setCartItems(response.data.data.customerCart.items);
 
-                // Debug log để xem cấu trúc cartItems
+                console.log('Cart ID: ', response.data.data.customerCart.id);
                 console.log('Cart items: ', response.data.data.customerCart.items);
             } catch (err) {
                 setError('Unable to fetch cart items.');
@@ -78,11 +81,8 @@ const Cart = () => {
         console.log('Item ID to remove: ', itemId);
 
         try {
-            const cartId = cartItems.length > 0 ? cartItems[0].cart_id || cartItems[0].id : null;
-            console.log('Cart ID: ', cartId);
-
             if (!cartId) {
-                throw new Error('Cart ID is not defined');
+                throw new Error('Cart ID is not defined.');
             }
 
             const response = await axios.post(
@@ -93,7 +93,7 @@ const Cart = () => {
                     removeItemFromCart(
                         input: {
                             cart_id: "${cartId}",
-                            id: "${itemId}" // Nếu item_id không hợp lệ thì đổi thành id
+                            cart_item_id: "${itemId}"
                         }
                     ) {
                         cart {
@@ -124,11 +124,11 @@ const Cart = () => {
             setCartItems(response.data.data.removeItemFromCart.cart.items);
         } catch (err) {
             if (err.response) {
-                setError(`Unable to remove item from the cart. ${err.response.data.errors[0].message}`);
+                setError(`Unable to remove item from the cart. ${err.response.data.errors[0]?.message}`);
             } else {
                 setError('Unable to remove item from the cart. Network error.');
             }
-            console.error(err);
+            console.error('Error details: ', err);
         }
     };
 
@@ -146,7 +146,7 @@ const Cart = () => {
                     {cartItems.map((item) => (
                         <div key={item.id} className="cart-item">
                             <img
-                                src={item.product.image.url}
+                                src={item.product.image?.url || 'https://via.placeholder.com/150'}
                                 alt={item.product.name}
                                 className="cart-item-image"
                             />
@@ -159,6 +159,7 @@ const Cart = () => {
                             <button onClick={() => handleRemoveItem(item.id)}>Remove</button>
                         </div>
                     ))}
+
                 </div>
             )}
         </div>
